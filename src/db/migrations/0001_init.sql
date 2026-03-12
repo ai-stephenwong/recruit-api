@@ -100,12 +100,12 @@ CREATE INDEX IF NOT EXISTS idx_articles_status    ON content_articles(status);
 CREATE INDEX IF NOT EXISTS idx_articles_published ON content_articles(published_at);
 
 -- ─── Seed: Default Admin User ─────────────────────────────────────────────────
--- Password: Admin@1234  (SHA-256 hash)
+-- Password: Admin@123456  (SHA-256 hash)
 -- IMPORTANT: Change the password immediately after first login.
 
 INSERT OR IGNORE INTO users (email, password_hash, role)
 VALUES (
   'admin@recruit.com.hk',
-  'a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4',
+  'ad89b64d66caa8e30e5d5ce4a9763f4ecc205814c412175f3e2c50027471426d',
   'admin'
 );
