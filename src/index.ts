@@ -10,6 +10,8 @@ import candidateRoutes from './routes/candidates';
 import employerRoutes from './routes/employers';
 import adminRoutes from './routes/admin';
 import articleRoutes from './routes/articles';
+import saved from './routes/saved';
+import alerts from './routes/alerts';
 
 // ─── App factory ─────────────────────────────────────────────────────────────
 
@@ -43,6 +45,8 @@ app.route('/api/candidates', candidateRoutes);
 app.route('/api/employers', employerRoutes);
 app.route('/api/admin', adminRoutes);
 app.route('/api/articles', articleRoutes);
+app.route('/api/saved', saved);
+app.route('/api/alerts', alerts);
 
 // ─── 404 fallback ─────────────────────────────────────────────────────────────
 
