@@ -51,7 +51,7 @@ jobs.get('/', async (c) => {
     c.req.query('limit')
   );
 
-  const search = c.req.query('search') ?? '';
+  const search = c.req.query('q') ?? c.req.query('search') ?? '';
   const category = c.req.query('category') ?? '';
   const location = c.req.query('location') ?? '';
   const employmentType = c.req.query('employment_type') ?? '';

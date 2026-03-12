@@ -18,7 +18,7 @@ function parsePagination(page: string | undefined, limit: string | undefined) {
 admin.get('/jobs', async (c) => {
   const { page, limit, offset } = parsePagination(c.req.query('page'), c.req.query('limit'));
   const status = c.req.query('status') ?? '';
-  const search = c.req.query('search') ?? '';
+  const search = c.req.query('q') ?? c.req.query('search') ?? '';
 
   const conditions: string[] = [];
   const params: (string | number)[] = [];
@@ -65,7 +65,7 @@ admin.get('/jobs', async (c) => {
 admin.get('/users', async (c) => {
   const { page, limit, offset } = parsePagination(c.req.query('page'), c.req.query('limit'));
   const role = c.req.query('role') ?? '';
-  const search = c.req.query('search') ?? '';
+  const search = c.req.query('q') ?? c.req.query('search') ?? '';
 
   const conditions: string[] = [];
   const params: (string | number)[] = [];
