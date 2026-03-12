@@ -193,4 +193,66 @@ applications.put('/:id/status', authMiddleware, requireRole('employer', 'admin')
   return c.json({ message: 'Application status updated', data: updated });
 });
 
+// ─── PATCH /api/applications/:id/stage (employer updates pipeline stage) ──────
+
+const VALID_STAGES = ['applied', 'screening', 'interview', 'offer', 'hired', 'rejected'];
+
+applications.patch('/:id/stage', authMiddleware, requireRole('employer', 'admin'), async (c) => {
+  const id = parseInt(c.req.param('id'), 10);
+  if (isNaN(id)) return c.json({ error: 'Bad Request', message: 'Invalid ID' }, 400);
+
+  const body = await c.req.json<{ pipeline_stage: string }>().catch(() => null);
+  if (!body?.pipeline_stage || !VALID_STAGES.includes(body.pipeline_stage)) {
+    return c.json({ error: 'Bad Request', message: `pipeline_stage must be one of: ${VALID_STAGES.join(', ')}` }, 400);
+  }
+
+  const userId = c.get('userId');
+  const role = c.get('userRole');
+
+  const application = await c.env.DB.prepare(
+    `SELECT a.*, j.employer_id FROM applications a JOIN jobs j ON j.id = a.job_id WHERE a.id = ?`
+  ).bind(id).first<ApplicationRow & { employer_id: number }>();
+
+  if (!application) return c.json({ error: 'Not Found', message: 'Application not found' }, 404);
+  if (role !== 'admin' && application.employer_id !== userId) {
+    return c.json({ error: 'Forbidden', message: 'You do not manage this application' }, 403);
+  }
+
+  const updated = await c.env.DB.prepare(
+    'UPDATE applications SET pipeline_stage = ? WHERE id = ? RETURNING *'
+  ).bind(body.pipeline_stage, id).first<ApplicationRow>();
+
+  return c.json({ message: 'Pipeline stage updated', data: updated });
+});
+
+// ─── PATCH /api/applications/:id/notes (employer adds recruiter notes) ─────────
+
+applications.patch('/:id/notes', authMiddleware, requireRole('employer', 'admin'), async (c) => {
+  const id = parseInt(c.req.param('id'), 10);
+  if (isNaN(id)) return c.json({ error: 'Bad Request', message: 'Invalid ID' }, 400);
+
+  const body = await c.req.json<{ recruiter_notes: string }>().catch(() => null);
+  if (body?.recruiter_notes === undefined) {
+    return c.json({ error: 'Bad Request', message: 'recruiter_notes is required' }, 400);
+  }
+
+  const userId = c.get('userId');
+  const role = c.get('userRole');
+
+  const application = await c.env.DB.prepare(
+    `SELECT a.*, j.employer_id FROM applications a JOIN jobs j ON j.id = a.job_id WHERE a.id = ?`
+  ).bind(id).first<ApplicationRow & { employer_id: number }>();
+
+  if (!application) return c.json({ error: 'Not Found', message: 'Application not found' }, 404);
+  if (role !== 'admin' && application.employer_id !== userId) {
+    return c.json({ error: 'Forbidden', message: 'You do not manage this application' }, 403);
+  }
+
+  const updated = await c.env.DB.prepare(
+    'UPDATE applications SET recruiter_notes = ? WHERE id = ? RETURNING *'
+  ).bind(body.recruiter_notes, id).first<ApplicationRow>();
+
+  return c.json({ message: 'Notes updated', data: updated });
+});
+
 export default applications;
