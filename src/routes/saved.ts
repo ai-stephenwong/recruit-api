@@ -1,12 +1,11 @@
 import { Hono } from 'hono';
 import type { Env, Variables } from '../types';
-import { authMiddleware } from '../middleware/auth';
-import { roleGuard } from '../middleware/auth';
+import { authMiddleware, requireRole } from '../middleware/auth';
 
 const saved = new Hono<{ Bindings: Env; Variables: Variables }>();
 
 // GET /api/saved — list saved jobs for current candidate
-saved.get('/', authMiddleware, roleGuard('candidate'), async (c) => {
+saved.get('/', authMiddleware, requireRole('candidate'), async (c) => {
   const userId = c.get('userId');
   const { results } = await c.env.DB.prepare(`
     SELECT j.*, ep.company_name, ep.company_logo, ep.industry
@@ -20,7 +19,7 @@ saved.get('/', authMiddleware, roleGuard('candidate'), async (c) => {
 });
 
 // POST /api/saved/:jobId — save a job
-saved.post('/:jobId', authMiddleware, roleGuard('candidate'), async (c) => {
+saved.post('/:jobId', authMiddleware, requireRole('candidate'), async (c) => {
   const userId = c.get('userId');
   const jobId = Number(c.req.param('jobId'));
   try {
@@ -34,7 +33,7 @@ saved.post('/:jobId', authMiddleware, roleGuard('candidate'), async (c) => {
 });
 
 // DELETE /api/saved/:jobId — unsave a job
-saved.delete('/:jobId', authMiddleware, roleGuard('candidate'), async (c) => {
+saved.delete('/:jobId', authMiddleware, requireRole('candidate'), async (c) => {
   const userId = c.get('userId');
   const jobId = Number(c.req.param('jobId'));
   await c.env.DB.prepare(
@@ -44,7 +43,7 @@ saved.delete('/:jobId', authMiddleware, roleGuard('candidate'), async (c) => {
 });
 
 // GET /api/saved/ids — return list of saved job IDs for current user
-saved.get('/ids', authMiddleware, roleGuard('candidate'), async (c) => {
+saved.get('/ids', authMiddleware, requireRole('candidate'), async (c) => {
   const userId = c.get('userId');
   const { results } = await c.env.DB.prepare(
     'SELECT job_id FROM saved_jobs WHERE candidate_id = ?'

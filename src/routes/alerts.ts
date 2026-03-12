@@ -1,11 +1,11 @@
 import { Hono } from 'hono';
 import type { Env, Variables } from '../types';
-import { authMiddleware, roleGuard } from '../middleware/auth';
+import { authMiddleware, requireRole } from '../middleware/auth';
 
 const alerts = new Hono<{ Bindings: Env; Variables: Variables }>();
 
 // GET /api/alerts
-alerts.get('/', authMiddleware, roleGuard('candidate'), async (c) => {
+alerts.get('/', authMiddleware, requireRole('candidate'), async (c) => {
   const userId = c.get('userId');
   const { results } = await c.env.DB.prepare(
     'SELECT * FROM job_alerts WHERE candidate_id = ? ORDER BY created_at DESC'
@@ -14,7 +14,7 @@ alerts.get('/', authMiddleware, roleGuard('candidate'), async (c) => {
 });
 
 // POST /api/alerts
-alerts.post('/', authMiddleware, roleGuard('candidate'), async (c) => {
+alerts.post('/', authMiddleware, requireRole('candidate'), async (c) => {
   const userId = c.get('userId');
   const body = await c.req.json();
   const { keywords, category, location, employment_type, salary_min } = body;
@@ -26,7 +26,7 @@ alerts.post('/', authMiddleware, roleGuard('candidate'), async (c) => {
 });
 
 // DELETE /api/alerts/:id
-alerts.delete('/:id', authMiddleware, roleGuard('candidate'), async (c) => {
+alerts.delete('/:id', authMiddleware, requireRole('candidate'), async (c) => {
   const userId = c.get('userId');
   const id = Number(c.req.param('id'));
   await c.env.DB.prepare(
