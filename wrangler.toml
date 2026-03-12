@@ -6,7 +6,7 @@ compatibility_flags = ["nodejs_compat"]
 [[d1_databases]]
 binding = "DB"
 database_name = "recruit-db"
-database_id = "placeholder-replace-after-create"
+database_id = "e63250fb-4ab3-44a1-9d7b-f9a5321f36ed"
 migrations_dir = "src/db/migrations"
 
 # ─── Secrets (set via `wrangler secret put OPENAI_API_KEY`) ──────────────────
